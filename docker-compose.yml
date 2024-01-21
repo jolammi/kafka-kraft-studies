@@ -1,0 +1,71 @@
+version: "3"
+services:
+  # Kafka Broker 1
+  kafka1:
+    hostname: kafka1
+    image: 'bitnami/kafka:3.6'
+    volumes:
+      - ./data/data1:/bitnami/kafka
+    ports:
+      # - '9092:9092'
+      # - '9093:9093'
+      - '19092:19092' # external port for producers and consumers
+    environment:
+      - KAFKA_CFG_NODE_ID=1
+      - KAFKA_KRAFT_CLUSTER_ID=DygvrvfcSyioPcbURStasQ # just a random UUID in base64 format as required by the cluster
+      - KAFKA_CFG_PROCESS_ROLES=controller,broker # This appears not to be production ready
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka1:9093,2@kafka2:9093,3@kafka3:9093
+      - KAFKA_CFG_LISTENERS=INTERNAL://:9092,CONTROLLER://:9093,EXTERNAL://:19092
+      - KAFKA_CFG_ADVERTISED_LISTENERS=INTERNAL://kafka1:9092,EXTERNAL://localhost:19092
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=INTERNAL
+      - KAFKA_TLS_CLIENT_AUTH=none
+
+  # Kafka Broker 2
+  kafka2:
+    hostname: kafka2
+    image: 'bitnami/kafka:3.6'
+    volumes:
+      - ./data/data2:/bitnami/kafka
+    ports:
+      # - '9094:9092'
+      # - '9095:9093'
+      - '19093:19093' # external port for producers and consumers
+    environment:
+      - KAFKA_CFG_NODE_ID=2
+      - KAFKA_KRAFT_CLUSTER_ID=DygvrvfcSyioPcbURStasQ # just a random UUID in base64 format as required by the cluster
+      - KAFKA_CFG_PROCESS_ROLES=broker, controller # This appears not to be production ready
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka1:9093,2@kafka2:9093,3@kafka3:9093
+      - KAFKA_CFG_LISTENERS=INTERNAL://:9092,CONTROLLER://:9093,EXTERNAL://:19093
+      - KAFKA_CFG_ADVERTISED_LISTENERS=INTERNAL://kafka2:9092,EXTERNAL://localhost:19093
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=INTERNAL
+
+  # Kafka Broker 3
+  kafka3:
+    hostname: kafka3
+    image: 'bitnami/kafka:3.6'
+    volumes:
+      - ./data/data3:/bitnami/kafka
+    ports:
+      # - '9096:9092'
+      # - '9097:9093'
+      - '19094:19094' # external port for producers and consumers
+    environment:
+      - KAFKA_CFG_NODE_ID=3
+      - KAFKA_KRAFT_CLUSTER_ID=DygvrvfcSyioPcbURStasQ # just a random UUID in base64 format as required by the cluster
+      - KAFKA_CFG_PROCESS_ROLES=controller,broker # This appears not to be production ready
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka1:9093,2@kafka2:9093,3@kafka3:9093
+      - KAFKA_CFG_LISTENERS=INTERNAL://:9092,CONTROLLER://:9093,EXTERNAL://:19094
+      - KAFKA_CFG_ADVERTISED_LISTENERS=INTERNAL://kafka3:9092,EXTERNAL://localhost:19094
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=INTERNAL
+  akhq:
+    image: 'tchiotludo/akhq'
+    volumes:
+      - ./akhq.yml:/app/application.yml
+    ports:
+      - '8080:8080'

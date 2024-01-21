@@ -1,0 +1,14 @@
+akhq:
+  connections:
+    kafka1:
+      properties:
+        bootstrap.servers:
+        - "kafka1:9092"
+    kafka2:
+      properties:
+        bootstrap.servers:
+        - "kafka2:9092"
+    kafka3:
+      properties:
+        bootstrap.servers:
+        - "kafka3:9092"
